@@ -84,16 +84,24 @@ Promise.all([
     percentageArrays.forEach((percentageArray,index) => {
         svg.selectAll(`.rect${index}`)
         .data(percentageArray)
-        .enter()
-        .append("rect")
-        .attr("x", (d) => { return margins.left + xScale(d.key) + index * widthPerRect + timeFramesPadding / 2 })
-        .attr("y", (d) => { return margins.top + yScale(d.percentage) })
-        .attr("width", widthPerRect)
-        .attr("height", (d) => { return plotHeight - yScale(d.percentage) })
-        .attr("class", `rect${index}`)
-        .attr("fill", colorScale[index])
-        .append("title")
-        .text((d)=> {return `percentage: ${Number.parseFloat(d.percentage).toPrecision(3)}`})
+        .join(
+            (enter) => {
+                enter.append("rect")
+                .attr("x", (d) => { return margins.left + xScale(d.key) + index * widthPerRect + timeFramesPadding / 2 })
+                .attr("y", (d) => { return margins.top + yScale(d.percentage) })
+                .attr("width", widthPerRect)
+                .attr("height", (d) => { return plotHeight - yScale(d.percentage) })
+                .attr("class", `rect${index}`)
+                .attr("fill", colorScale[index])
+                .append("title")
+                .text((d)=> {return `percentage: ${Number.parseFloat(d.percentage).toPrecision(3)}`})
+                enter.append("text")
+                .attr("x", (d) => { return margins.left + xScale(d.key) + index * widthPerRect + timeFramesPadding / 2 })
+                .attr("y", (d) => { return margins.top + yScale(d.percentage) })
+                .text((d)=> {return `${Number.parseFloat(d.percentage).toPrecision(3)}`})
+            }
+        )
+
     })
 
 })
