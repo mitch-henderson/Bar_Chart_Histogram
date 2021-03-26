@@ -23,30 +23,32 @@ svg.append("text")
     .attr("font-size", 10)
 
 Promise.all([
-    d3.csv("Data_Managing_Crisis_Wave_3_CLEAN.csv"),
-    d3.csv("Data_Managing_Crisis_Wave_4_CLEAN.csv"),
-    d3.csv("Data_Managing_Crisis_Wave_5_CLEAN.csv")
+    d3.csv("Wave_3.csv"),
+    d3.csv("Wave_4.csv"),
+    d3.csv("Wave_5.csv")
 ]).then((datas) => {
     const percentageArrays = []
     datas.forEach((data) => {
-        const q157data = data.map((d) => { return Number(d.Q157); })
+        const q157data = data.map((d) => { return Number(d.Q157Months); })
         console.log(q157data)
-        const countArray = [{ count: 0, key: "<=3 months" }, { count: 0, key: "4-6 months" }, { count: 0, key: "7-9 months" }, { count: 0, key: "10-12 months" }, { count: 0, key: "13-15 months" }, { count: 0, key: "16-18 months" }, { count: 0, key: ">= 18 months" }]
+        const countArray = [{count: 0, key: "Not Impacted"}, { count: 0, key: "<=3 months" }, { count: 0, key: "4-6 months" }, { count: 0, key: "7-9 months" }, { count: 0, key: "10-12 months" }, { count: 0, key: "13-15 months" }, { count: 0, key: "16-18 months" }, { count: 0, key: ">= 18 months" }]
         q157data.forEach((d) => {
-            if (d < 4) {
+            if (d === 99) {
                 countArray[0].count += 1
-            } else if (d < 7) {
+            } else if (d < 4) {
                 countArray[1].count += 1
-            } else if (d < 10) {
+            } else if (d < 7) {
                 countArray[2].count += 1
-            } else if (d < 13) {
+            } else if (d < 10) {
                 countArray[3].count += 1
-            } else if (d < 16) {
+            } else if (d < 13) {
                 countArray[4].count += 1
-            } else if (d < 19) {
+            } else if (d < 16) {
                 countArray[5].count += 1
-            } else {
+            } else if (d < 19) {
                 countArray[6].count += 1
+            } else if (d < 98) {
+                countArray[7].count += 1
             }
         })
         const percentageArray = countArray.map((d) => {
@@ -88,20 +90,40 @@ Promise.all([
             (enter) => {
                 enter.append("rect")
                 .attr("x", (d) => { return margins.left + xScale(d.key) + index * widthPerRect + timeFramesPadding / 2 })
-                .attr("y", (d) => { return margins.top + yScale(d.percentage) })
+                .attr("y", (d) => { return margins.top + yScale(0) })
                 .attr("width", widthPerRect)
-                .attr("height", (d) => { return plotHeight - yScale(d.percentage) })
+                .attr("height", (d) => { return 0 })
                 .attr("class", `rect${index}`)
                 .attr("fill", colorScale[index])
                 .append("title")
                 .text((d)=> {return `percentage: ${Number.parseFloat(d.percentage).toPrecision(3)}`})
+
+
                 enter.append("text")
-                .attr("x", (d) => { return margins.left + xScale(d.key) + index * widthPerRect + timeFramesPadding / 2 })
-                .attr("y", (d) => { return margins.top + yScale(d.percentage) })
+                .attr("x", (d) => { return margins.left + xScale(d.key) + index * widthPerRect + timeFramesPadding / 2 + widthPerRect / 2 })
+                .attr("y", (d) => { return margins.top + yScale(d.percentage) - 3})
                 .text((d)=> {return `${Number.parseFloat(d.percentage).toPrecision(3)}`})
+                .attr("font-size", 10)
+                .attr("text-anchor", "middle")
+                .attr("class", "percentage-text")
+                .attr("opacity", 0)
             }
         )
+        svg.selectAll(`.rect${index}`)
+        .transition()
+        .delay(function (d) {return Math.random()*1000;})
+        .duration(1000)
+        .attr("y", (d) => { return margins.top + yScale(d.percentage) })
+        .attr("height", (d) => { return plotHeight - yScale(d.percentage) })
+        
+        
+
 
     })
+    svg.selectAll(".percentage-text")
+    .transition()
+    .delay(2000)
+    .duration(1000)
+    .attr("opacity", 1)
 
 })
